@@ -25,7 +25,6 @@ type NewLogStoreKeyingOptions struct {
 	OverheadDelay     time.Duration
 }
 
-// NewLogStoreKeying creates a new LogStoreKeying.
 func NewLogStoreKeying(options NewLogStoreKeyingOptions) *LogStoreKeying {
 	cronExpr, err := cronexpr.Parse(options.CronExprStr)
 	if err != nil {

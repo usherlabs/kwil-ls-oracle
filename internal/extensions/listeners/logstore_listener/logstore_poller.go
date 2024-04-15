@@ -2,6 +2,8 @@ package logstore_listener
 
 import "github.com/usherlabs/kwil-ls-oracle/internal/logstore_client"
 
+// LogStorePoller is a poller service for the logstore listener.
+// it should implement the [paginated_poll_listener.PollerService] interface.
 type LogStorePoller struct {
 	client   logstore_client.LogStoreClient
 	streamId string
