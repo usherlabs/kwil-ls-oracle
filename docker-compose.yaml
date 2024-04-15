@@ -1,0 +1,72 @@
+name: kwil-ls-oracle
+services:
+  kwil-postgres:
+    image: "kwildb/postgres:latest"
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    # persis data
+    volumes:
+      - type: volume
+        source: data-kwil-postgres
+        target: /var/lib/postgresql/data
+        volume:
+          nocopy: true
+    networks:
+      - kwil-network
+
+  kwil-node:
+    container_name: kwil-node
+    hostname: kwil-node
+    build:
+      context: .
+      dockerfile: ./kwil.dockerfile
+      args:
+        - DEBUG_PORT=2345
+    ports:
+      - "8080:8080"
+      - "2345:2345"
+    depends_on:
+      kwil-postgres:
+        condition: service_healthy
+    volumes:
+      - ./examples/config.toml:/root/.kwild/config.toml
+    networks:
+      - kwil-network
+
+  logstore-node:
+    container_name: logstore-node
+    hostname: logstore-node
+    image: logsn-node:local
+    command: [ "start-in-docker", "start" ]
+    networks:
+      - kwil-network
+    ports:
+      - '7773:7773'
+    volumes:
+      - type: bind
+        source: ./examples/logstore-node-config.json
+        target: /home/node/.logstore/config/default.json
+      - type: bind
+        volume:
+          nocopy: true
+        source: ./docker-data/
+        target: /home/node/.logstore/data/
+
+
+        bind:
+          propagation: shared
+
+networks:
+  kwil-network:
+    driver: bridge
+
+volumes:
+  data-kwil-postgres:
+  data-push-tsn-data:

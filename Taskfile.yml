@@ -1,0 +1,52 @@
+version: "3"
+
+tasks:
+  default:
+    cmds:
+      - task -l
+
+  build:
+    desc: Build kwild binary
+    cmds:
+      - go build -o ./.build/kwild ./cmd/kwild/main.go
+
+  build:debug:
+    desc: Build kwild binary with debug flags
+    cmds:
+      - go build -gcflags "all=-N -l" -o ./.build/kwild ./cmd/kwild/main.go
+
+  kwild:
+    desc: Run kwild server
+    cmds:
+      - .build/kwild --autogen
+
+  postgres:
+    desc: Run a postgres container
+    cmds:
+      - docker start kwil-postgres || docker run -d -p 5432:5432 --name kwil-postgres -e "POSTGRES_HOST_AUTH_METHOD=trust" kwildb/postgres:latest
+
+  tools:
+    desc: Install tools
+    cmds:
+      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.56.2
+      - go install github.com/vektra/mockery/v2@v2.42.1
+
+  lint:
+    desc: Run linter
+    cmds:
+      - golangci-lint run
+
+  kwil-binaries:
+    cmds:
+      - wget -O kwil-db.tar.gz https://github.com/kwilteam/kwil-db/releases/download/v0.7.0/kwil-db_0.7.0_linux_amd64.tar.gz
+        && tar -xzvf kwil-db.tar.gz 'kwil-cli' 'kwil-admin'
+        && mkdir -p ./.build
+        && mv ./kwil-cli .build
+        && mv ./kwil-admin .build
+        && rm ./kwil-db.tar.gz
+
+  clear-data:
+    cmds:
+      - rm -r ~/.kwild || true
+
+

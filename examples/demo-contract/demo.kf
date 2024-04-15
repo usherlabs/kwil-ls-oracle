@@ -1,0 +1,20 @@
+database demo;
+
+table data_table {
+    id int primary notnull,
+    content text
+}
+
+action log_store_ingest ($content) public {
+  INSERT INTO data_table (content)
+  VALUES ($content);
+}
+
+action get_data() public view {
+    SELECT * FROM data_table;
+}
+
+action test() public view {
+    // just output a string
+    SELECT @caller as value;
+}

@@ -1,0 +1,11 @@
+.git
+.env*
+!.env.example
+.idea
+
+.build
+
+go.work*
+vendor
+
+docker-data

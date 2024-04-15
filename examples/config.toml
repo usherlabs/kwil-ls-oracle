@@ -1,0 +1,22 @@
+[app]
+
+# TCP or UNIX socket address for the KWILD App's HTTP server to listen on
+#http_listen_addr = "localhost:8080" # default
+http_listen_addr = "0.0.0.0:8080" # for external access
+pg_db_host = "kwil-postgres"
+
+
+#######################################################################
+###                     Extension Configuration                     ###
+#######################################################################
+[app.extensions]
+
+# custom listener config
+[app.extensions.logstore-oracle]
+stream_id = "0xd37dc4d7e2c1bdf3edd89db0e505394ea69af43d/kwil-demo"
+node_endpoint = "http://logstore-node:7773"
+overhead_delay = "10s"
+cron_schedule = "0 * * * *"
+private_key = "0000000000000000000000000000000000000000000000000000000000000022"
+# Unix timestamp in seconds
+# starting_timestamp=0

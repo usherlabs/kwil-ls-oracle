@@ -1,0 +1,39 @@
+### Go template
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories
+vendor/
+
+# Go workspace file
+go.work
+go.work.sum
+
+### Misc
+.github
+.idea
+**/.git
+*.iml
+
+### Things that doesn't produce code or seed
+*.md
+scripts/temp_*
+scripts/produce_source_maps/all_tables.csv
+scripts/composed_streams.csv
+
+docker-data
+
+### Docker files and compose files
+docker-compose.yml
+*.dockerfile
+Dockerfile
