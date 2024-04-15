@@ -17,7 +17,7 @@ Implements the consensus mechanisms. It is used by `pagination_poll_listener` to
 
 See https://docs.kwil.com/docs/extensions/resolutions for more information on kwil resolutions.
 
-## [demo-contract](./examples/demo-contract)
+### [demo-contract](./examples/demo-contract)
 
 Provides a simple kuneiform file demonstrating how we can use the `logstore_listener` and `ingest_resolution` to fetch data from the Log Store into a kwil contract.
 
