@@ -68,36 +68,41 @@ func (p *PaginatedPoller) Run(ctx context.Context, service *common.Service, even
 	if err != nil {
 		return fmt.Errorf("failed to get current key: %w", err)
 	}
-	nextKey, err := p.KeyingService.GetKeyAfter(lastProcessedKey)
+
+	// ending key is the key before the current key
+	// e.g., for a service that processes every 10 keys. current key = 102, last processed key = 80
+	// - The ending key would be 100;
+	// - We expect to process data from 80 to 100, as 100 forward batch is ongoing.
+	endingKey, err := p.KeyingService.GetKeyBefore(currentKey)
 	if err != nil {
-		return fmt.Errorf("failed to get next key: %w", err)
+		return fmt.Errorf("failed to get ending key: %w", err)
 	}
 
-	if lastProcessedKey > nextKey {
-		return fmt.Errorf("starting key is greater than the last confirmed key")
-	}
-
-	// we will now sync all data from the starting key to the current key in chunks
+	var nextKey int64
+	// we will now process the data from the last processed key to the ending key
 	for {
-		if lastProcessedKey >= currentKey {
-			break
+		nextKey, err = p.KeyingService.GetKeyAfter(lastProcessedKey)
+
+		// should never happen
+		if lastProcessedKey > nextKey {
+			return fmt.Errorf("starting key is greater than the last confirmed key")
 		}
 
-		// get the next key chunk. if it is greater than the current key,
-		// we will set it to the current key
-		nextKey, err := p.KeyingService.GetKeyAfter(lastProcessedKey)
 		if err != nil {
 			return fmt.Errorf("failed to get next key: %w", err)
 		}
 
-		toKey := min(nextKey, currentKey)
+		// if nextKey reached the end, we will break the loop, ending the process
+		if nextKey > endingKey {
+			break
+		}
 
-		err = p.retrieveAndProcessData(ctx, lastProcessedKey, toKey, eventstore, service.Logger)
+		err = p.retrieveAndProcessData(ctx, lastProcessedKey, nextKey, eventstore, service.Logger)
 		if err != nil {
 			return fmt.Errorf("failed to process events: %w", err)
 		}
 
-		lastProcessedKey = toKey
+		lastProcessedKey = nextKey
 	}
 
 	// set the last key processed by the listener
