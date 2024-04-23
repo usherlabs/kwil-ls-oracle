@@ -1,0 +1,139 @@
+name: kwil-ls-oracle-tesnet
+services:
+  kwil-postgres:
+    image: "kwildb/postgres:latest"
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    # persis data
+    volumes:
+      - type: volume
+        source: data-kwil-postgres
+        target: /var/lib/postgresql/data
+        volume:
+          nocopy: true
+    networks:
+      - kwil-network
+
+  kwil-node-1:
+    container_name: kwil-node-1
+    hostname: kwil-node-1
+    build:
+      context: .
+      dockerfile: ./kwil.dockerfile
+#      args:
+#        - DEBUG_PORT=2345
+    ports:
+      - "8080:8080"
+      - "2345:2345"
+    environment:
+      - KWILD_CHAIN_RPC_EXTERNAL_ADDRESS=kwil-node-1
+    depends_on:
+      kwil-postgres:
+        condition: service_healthy
+    volumes:
+      - ./examples/testnet/config.toml:/root/.kwild/config.toml
+      - ./examples/testnet/node1.private_key:/root/.kwild/private_key
+      - ./examples/testnet/genesis.json:/root/.kwild/genesis.json
+      - type: volume
+        source: data-kwil-1
+        target: /root/.kwild
+        volume:
+          nocopy: true
+    networks:
+      - kwil-network
+
+
+  kwil-node-2:
+    container_name: kwil-node-2
+    hostname: kwil-node-2
+    build:
+      context: .
+      dockerfile: ./kwil.dockerfile
+    ports:
+      - "8081:8080"
+    environment:
+      - KWILD_CHAIN_RPC_EXTERNAL_ADDRESS=kwil-node-2
+    depends_on:
+      kwil-node-1:
+        condition: service_started
+    volumes:
+      - ./examples/testnet/config.toml:/root/.kwild/config.toml
+      - ./examples/testnet/node2.private_key:/root/.kwild/private_key
+      - ./examples/testnet/genesis.json:/root/.kwild/genesis.json
+      - type: volume
+        source: data-kwil-2
+        target: /root/.kwild
+        volume:
+          nocopy: true
+    networks:
+      - kwil-network
+
+
+  kwil-node-3:
+    container_name: kwil-node-3
+    hostname: kwil-node-3
+    build:
+      context: .
+      dockerfile: ./kwil.dockerfile
+    ports:
+      - "8082:8080"
+    environment:
+      - KWILD_CHAIN_RPC_EXTERNAL_ADDRESS=kwil-node-3
+    depends_on:
+      kwil-node-1:
+        condition: service_started
+    volumes:
+      - ./examples/testnet/config.toml:/root/.kwild/config.toml
+      - ./examples/testnet/node3.private_key:/root/.kwild/private_key
+      - ./examples/testnet/genesis.json:/root/.kwild/genesis.json
+      - type: volume
+        source: data-kwil-3
+        target: /root/.kwild
+        volume:
+          nocopy: true
+    networks:
+      - kwil-network
+
+  logstore-node:
+    container_name: logstore-node
+    hostname: logstore-node
+    image: logsn-node:local
+    command: [ "start-in-docker", "start" ]
+    networks:
+      - kwil-network
+    ports:
+      - '7773:7773'
+    environment:
+      - PROVER_MODE=dev
+      - NOTARY_URL=10.200.10.1:7047
+      - EXPERIMENTAL_SOROBAN_SINK=true
+      - SINK_STELLAR_WALLET_PRIVATE_KEY=SCMDRX7A7OVRPAGXLUVRNIYTWBLCS54OV7UH2TF5URSG4B4JQMUADCYU
+    volumes:
+      - type: bind
+        source: ./examples/logstore-node-config.json
+        target: /home/node/.logstore/config/default.json
+        read_only: true
+      #       - type: bind
+      #        source: ./assets/broker/data/
+      #        target: /home/node/.logstore/data/
+      - type: bind
+        source: ./examples/docker-data/
+        target: /home/node/.logstore/data/
+
+networks:
+  kwil-network:
+    driver: bridge
+
+volumes:
+  data-kwil-1:
+  data-kwil-2:
+  data-kwil-3:
+  data-kwil-postgres:
+  data-push-tsn-data:

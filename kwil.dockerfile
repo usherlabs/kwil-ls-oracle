@@ -4,8 +4,7 @@ WORKDIR /app
 
 # let's add delve even if it's not debugging to make it available
 RUN apk add --no-cache git \
-    && go get github.com/go-delve/delve/cmd/dlv \
-    && go install github.com/go-delve/delve/cmd/dlv
+    && go install github.com/go-delve/delve/cmd/dlv@latest
 
 COPY go.mod .
 COPY go.sum .

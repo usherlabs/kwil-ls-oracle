@@ -36,7 +36,14 @@ services:
       kwil-postgres:
         condition: service_healthy
     volumes:
-      - ./examples/config.toml:/root/.kwild/config.toml
+      - ./examples/single-node/config.toml:/root/.kwild/config.toml
+      - ./examples/single-node/genesis.json:/root/.kwild/genesis.json
+      - ./examples/single-node/node1.private_key:/root/.kwild/private_key
+      - type: volume
+        source: data-kwil
+        target: /root/.kwild
+        volume:
+          nocopy: true
     networks:
       - kwil-network
 
@@ -49,24 +56,25 @@ services:
       - kwil-network
     ports:
       - '7773:7773'
+    environment:
+        - PROVER_MODE=dev
+        - NOTARY_URL=10.200.10.1:7047
+        - EXPERIMENTAL_SOROBAN_SINK=true
+        - SINK_STELLAR_WALLET_PRIVATE_KEY=SCMDRX7A7OVRPAGXLUVRNIYTWBLCS54OV7UH2TF5URSG4B4JQMUADCYU
     volumes:
       - type: bind
         source: ./examples/logstore-node-config.json
         target: /home/node/.logstore/config/default.json
+        read_only: true
       - type: bind
-        volume:
-          nocopy: true
-        source: ./docker-data/
+        source: ./examples/docker-data/
         target: /home/node/.logstore/data/
-
-
-        bind:
-          propagation: shared
 
 networks:
   kwil-network:
     driver: bridge
 
 volumes:
+  data-kwil:
   data-kwil-postgres:
   data-push-tsn-data:

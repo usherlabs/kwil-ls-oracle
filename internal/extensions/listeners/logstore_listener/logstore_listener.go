@@ -52,7 +52,7 @@ func Start(ctx context.Context, service *common.Service, eventstore listeners.Ev
 	}
 
 	// create a new LogStoreClient
-	client := logstore_client.NewLogStoreClient(config.NodeEndpoint, &signer)
+	client := logstore_client.NewLogStoreClient(config.NodeEndpoint, signer)
 
 	// create a new LogStorePoller
 	poller := NewLogStorePoller(*client, config.StreamId)

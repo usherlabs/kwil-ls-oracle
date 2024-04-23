@@ -57,21 +57,21 @@ func (l *LogStoreKeying) GetCurrentKey() (int64, error) {
 	// let's return current timestamp in UTC from time
 	// alternatively we may switch it to timestamp in the future
 	// overhead delay is added per configuration
-	return time.Now().Add(-l.overheadDelay).Unix(), nil
+	return time.Now().Add(-l.overheadDelay).UnixMilli(), nil
 }
 
 // GetKeyAfter gets the key after the given key for the logstore listener.
 func (l *LogStoreKeying) GetKeyAfter(key int64) (int64, error) {
 	// convert from unix timestamp to time
-	keyTime := time.Unix(key, 0)
+	keyTime := time.UnixMilli(key)
 
-	return l.cronExpr.Next(keyTime).Unix(), nil
+	return l.cronExpr.Next(keyTime).UnixMilli(), nil
 }
 
 // GetKeyBefore gets the key before the given key for the logstore listener.
 func (l *LogStoreKeying) GetKeyBefore(key int64) (int64, error) {
 	// convert from unix timestamp to time
-	keyTime := time.Unix(key, 0)
+	keyTime := time.UnixMilli(key)
 
-	return l.cronExpr.Prev(keyTime).Unix(), nil
+	return l.cronExpr.Prev(keyTime).UnixMilli(), nil
 }

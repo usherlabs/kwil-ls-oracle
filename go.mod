@@ -3,9 +3,11 @@ module github.com/usherlabs/kwil-ls-oracle
 go 1.22.1
 
 require (
+	github.com/ethereum/go-ethereum v1.13.8
 	github.com/gitploy-io/cronexpr v0.2.2
 	github.com/kwilteam/kwil-db v0.7.0
 	github.com/kwilteam/kwil-db/core v0.1.1
+	gotest.tools v2.2.0+incompatible
 )
 
 require (
@@ -36,7 +38,6 @@ require (
 	github.com/dgryski/go-farm v0.0.0-20200201041132-a6ae2369ad13 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/ethereum/c-kzg-4844 v0.4.0 // indirect
-	github.com/ethereum/go-ethereum v1.13.8 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-kit/kit v0.12.0 // indirect
 	github.com/go-kit/log v0.2.1 // indirect

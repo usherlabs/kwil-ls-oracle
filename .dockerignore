@@ -31,7 +31,7 @@ scripts/temp_*
 scripts/produce_source_maps/all_tables.csv
 scripts/composed_streams.csv
 
-docker-data
+examples/docker-data
 
 ### Docker files and compose files
 docker-compose.yml
