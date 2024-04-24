@@ -26,7 +26,9 @@ node_endpoint = "http://logstore-node:7773"
 overhead_delay = "10s"
 cron_schedule = "* * * * *"
 private_key = "0000000000000000000000000000000000000000000000000000000000000022"
-# Unix timestamp in seconds
+# possible values: "<owner>/<db_name>,<owner>/*,*/<db_name>,*/*" -- comma separated
+lookup_schemas = "*/demo"
+# Unix timestamp in milliseconds
 # starting_timestamp=0
 
 
