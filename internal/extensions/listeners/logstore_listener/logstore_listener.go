@@ -14,6 +14,7 @@ import (
 	"github.com/usherlabs/kwil-ls-oracle/internal/logstore_client"
 	"github.com/usherlabs/kwil-ls-oracle/internal/paginated_poll_listener"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -66,6 +67,9 @@ func Start(ctx context.Context, service *common.Service, eventstore listeners.Ev
 		CronExprStr:       config.CronSchedule,
 	})
 
+	// update the ingest resolution with the lookup schemas
+	ingest_resolution.LogStoreIngestResolution.ContractSelectors = ingest_resolution.LookupSchemaToSelectors(config.LookupSchemas)
+
 	// create a new PaginatedPoller
 	paginatedPoller := paginated_poll_listener.PaginatedPoller[*ingest_resolution.LogStoreIngestDataResolution]{
 		PollerService:    poller,
@@ -95,6 +99,7 @@ type LogStoreListenerConfig struct {
 	StartingTimestamp *int64        `json:"starting_timestamp"`
 	CronSchedule      string        `json:"cron_schedule"`
 	PrivateKey        string        `json:"private_key"`
+	LookupSchemas     []string      `json:"lookup_schemas"`
 }
 
 func (c *LogStoreListenerConfig) setConfig(config map[string]string) error {
@@ -144,6 +149,12 @@ func (c *LogStoreListenerConfig) setConfig(config map[string]string) error {
 		return fmt.Errorf("missing private_key")
 	}
 	c.PrivateKey = privateKey
+
+	lookupSchemas, ok := config["lookup_schemas"]
+	if !ok {
+		return fmt.Errorf("missing lookup_schemas")
+	}
+	c.LookupSchemas = strings.Split(lookupSchemas, ",")
 
 	return nil
 }

@@ -3,6 +3,7 @@ package ingest_resolution
 import (
 	"context"
 	"github.com/kwilteam/kwil-db/common"
+	"github.com/kwilteam/kwil-db/core/types"
 	"math/big"
 
 	"github.com/kwilteam/kwil-db/extensions/resolutions"
@@ -33,8 +34,9 @@ type IngestResolution[T IngestDataResolution] struct {
 	// ConfirmationThreshold is the percentage of votes that must be confirm votes for the resolution to be confirmed.
 	ConfirmationThreshold *big.Rat
 	// ExpirationPeriod is the number of blocks after which the resolution will expire if it has not been confirmed.
-	ExpirationPeriod int64
-	ResolutionName   string
+	ExpirationPeriod  int64
+	ResolutionName    string
+	ContractSelectors []ContractSelector
 }
 
 func (r *IngestResolution[T]) GetResolutionConfig() resolutions.ResolutionConfig {
@@ -80,10 +82,13 @@ func (r *IngestResolution[T]) GetResolutionConfig() resolutions.ResolutionConfig
 				anyArgsSets = append(anyArgsSets, anyArgs)
 			}
 
-			for _, contract := range contracts {
+			// only ingest data for selected contracts, set by extension config
+			selectedContracts := FilterSelectedContracts(r.ContractSelectors, contracts)
+
+			for _, contract := range selectedContracts {
 				for _, anyArgs := range anyArgsSets {
 					_, err := app.Engine.Procedure(ctx, app.DB, &common.ExecutionData{
-						Dataset:   contract,
+						Dataset:   contract.DBID,
 						Procedure: r.ResolutionName,
 						Args:      anyArgs,
 						Signer:    resolution.Proposer,
@@ -100,13 +105,13 @@ func (r *IngestResolution[T]) GetResolutionConfig() resolutions.ResolutionConfig
 	}
 }
 
-func getDataSetsWithAction(ctx context.Context, app *common.App, action string) ([]string, error) {
+func getDataSetsWithAction(ctx context.Context, app *common.App, action string) ([]types.DatasetIdentifier, error) {
 	allContracts, err := app.Engine.ListDatasets(ctx, []byte{})
 	if err != nil {
 		return nil, err
 	}
 
-	var contracts []string
+	var contracts []types.DatasetIdentifier
 	for _, contract := range allContracts {
 		schema, err := app.Engine.GetSchema(ctx, contract.DBID)
 		if err != nil {
@@ -117,7 +122,7 @@ func getDataSetsWithAction(ctx context.Context, app *common.App, action string) 
 
 		for _, contractProcedure := range allContractProcedures {
 			if contractProcedure.Name == action {
-				contracts = append(contracts, contract.DBID)
+				contracts = append(contracts, *contract)
 				break
 			}
 		}
