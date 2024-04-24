@@ -36,7 +36,7 @@ services:
       kwil-postgres:
         condition: service_healthy
     volumes:
-      - ./examples/single-node/config.toml:/root/.kwild/config.toml
+      - ./examples/single-node/config.toml:/root/.kwild/config.toml:ro
       - ./examples/single-node/genesis.json:/root/.kwild/genesis.json
       - ./examples/single-node/node1.private_key:/root/.kwild/private_key
       - type: volume
