@@ -67,7 +67,7 @@ func Start(ctx context.Context, service *common.Service, eventstore listeners.Ev
 	})
 
 	// create a new PaginatedPoller
-	paginatedPoller := paginated_poll_listener.PaginatedPoller{
+	paginatedPoller := paginated_poll_listener.PaginatedPoller[*ingest_resolution.LogStoreIngestDataResolution]{
 		PollerService:    poller,
 		KeyingService:    logStoreKeying,
 		IngestResolution: *ingest_resolution.LogStoreIngestResolution,

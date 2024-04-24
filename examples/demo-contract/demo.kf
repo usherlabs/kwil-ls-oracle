@@ -1,13 +1,12 @@
 database demo;
 
 table data_table {
-    id int primary notnull,
+    ts int primary notnull,
     content text
 }
 
-action log_store_ingest ($content) public {
-  INSERT INTO data_table (content)
-  VALUES ($content);
+action log_store_ingest ($content, $timestamp) public {
+  INSERT INTO data_table (ts, content) VALUES ($timestamp, $content);
 }
 
 action get_data() public view {

@@ -106,8 +106,8 @@ func (c *LogStoreClient) QueryRange(streamId string, from, to int64, partition i
 	}
 
 	q := req.URL.Query()
-	q.Add("from", strconv.FormatInt(from, 10))
-	q.Add("to", strconv.FormatInt(to, 10))
+	q.Add("fromTimestamp", strconv.FormatInt(from, 10))
+	q.Add("toTimestamp", strconv.FormatInt(to, 10))
 	req.URL.RawQuery = q.Encode()
 
 	return c.FetchMessages(req)

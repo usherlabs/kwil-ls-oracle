@@ -9,15 +9,15 @@ import (
 	"github.com/usherlabs/kwil-ls-oracle/internal/extensions/resolutions/ingest_resolution"
 )
 
-type PaginatedPoller struct {
-	PollerService    PollerService
+type PaginatedPoller[T ingest_resolution.IngestDataResolution] struct {
+	PollerService    PollerService[T]
 	KeyingService    KeyingService
-	IngestResolution ingest_resolution.IngestResolution
+	IngestResolution ingest_resolution.IngestResolution[T]
 }
 
-type PollerService interface {
+type PollerService[T ingest_resolution.IngestDataResolution] interface {
 	// GetData gets the data from the service from the given key range. FROM (inclusive) and TO (exclusive)
-	GetData(from, to int64) ([]interface{}, error)
+	GetData(from, to int64) (*T, error)
 }
 
 // KeyingService helps to get the starting key, current key, key after and key before.
@@ -30,7 +30,7 @@ type KeyingService interface {
 	GetKeyBefore(key int64) (int64, error)
 }
 
-func (p *PaginatedPoller) Run(ctx context.Context, service *common.Service, eventstore listeners.EventStore) error {
+func (p *PaginatedPoller[T]) Run(ctx context.Context, service *common.Service, eventstore listeners.EventStore) error {
 	lastProcessedKeyRef, err := getLastStoredKey(ctx, eventstore)
 	if err != nil {
 		return fmt.Errorf("failed to get last stored key: %w", err)
@@ -116,15 +116,19 @@ func (p *PaginatedPoller) Run(ctx context.Context, service *common.Service, even
 }
 
 // retrieveAndProcessData will process all data from the PollerService from the given key range.
-func (p *PaginatedPoller) retrieveAndProcessData(ctx context.Context, from, to int64, eventstore listeners.EventStore, logger log.SugaredLogger) error {
-	data, err := p.PollerService.GetData(from, to)
+func (p *PaginatedPoller[T]) retrieveAndProcessData(ctx context.Context, from, to int64, eventstore listeners.EventStore, logger log.SugaredLogger) error {
+	ptr, err := p.PollerService.GetData(from, to)
 	if err != nil {
 		return fmt.Errorf("failed to get data: %w", err)
 	}
 
-	ingestDataResolution := ingest_resolution.IngestDataResolution{
-		Data: data,
+	// if data is nil, we will not process it
+	if ptr == nil {
+		logger.Debug(fmt.Sprintf("no data from %d to %d", from, to))
+		return nil
 	}
+
+	ingestDataResolution := *ptr
 
 	encodedResolutionResult, err := ingestDataResolution.MarshalBinary()
 
@@ -138,6 +142,7 @@ func (p *PaginatedPoller) retrieveAndProcessData(ctx context.Context, from, to i
 		return err
 	}
 
-	// process data
+	logger.Info(fmt.Sprintf("broadcasted resolution %s from %d to %d", p.IngestResolution.ResolutionName, from, to))
+
 	return nil
 }

@@ -5,17 +5,8 @@ import (
 	"github.com/kwilteam/kwil-db/common"
 	"math/big"
 
-	"github.com/kwilteam/kwil-db/core/types/serialize"
 	"github.com/kwilteam/kwil-db/extensions/resolutions"
 )
-
-var LogStoreIngestResolution = &IngestResolution{
-	RefundThreshold:       big.NewRat(1, 3),
-	ConfirmationThreshold: big.NewRat(2, 3),
-	// aprox 1 hour, assuming 6s block time
-	ExpirationPeriod: 600,
-	ResolutionName:   "log_store_ingest",
-}
 
 // use golang's init function, which runs before main, to register the extension
 // see more here: https://www.digitalocean.com/community/tutorials/understanding-init-in-go
@@ -27,7 +18,7 @@ func init() {
 	}
 }
 
-type IngestResolution struct {
+type IngestResolution[T IngestDataResolution] struct {
 	// RefundThreshold is the required vote percentage threshold for
 	// all voters on a resolution to be refunded the gas costs
 	// associated with voting. This allows for resolutions that have
@@ -46,14 +37,17 @@ type IngestResolution struct {
 	ResolutionName   string
 }
 
-func (r *IngestResolution) GetResolutionConfig() resolutions.ResolutionConfig {
+func (r *IngestResolution[T]) GetResolutionConfig() resolutions.ResolutionConfig {
 	return resolutions.ResolutionConfig{
 		RefundThreshold:       r.RefundThreshold,
 		ConfirmationThreshold: r.ConfirmationThreshold,
 		ExpirationPeriod:      r.ExpirationPeriod,
 		ResolveFunc: func(ctx context.Context, app *common.App, resolution *resolutions.Resolution) error {
-			// Unmarshal the resolution payload into an AccountCreditResolution
-			var newData IngestDataResolution
+			// Create a new instance of the resolution data
+			Tptr := *new(T)
+			newData := Tptr.NewData()
+
+			// Unmarshal the resolution payload
 			err := newData.UnmarshalBinary(resolution.Body)
 			if err != nil {
 				return err
@@ -66,16 +60,38 @@ func (r *IngestResolution) GetResolutionConfig() resolutions.ResolutionConfig {
 				return err
 			}
 
+			// get args sets
+			// for example, we plan to batch ingest the data
+			// and procedure calls only insert one row at a time
+			// so we need to get all the args sets
+			// [[arg1, arg2], [arg1, arg2], ...]
+			argsSets := newData.GetArgs()
+
+			anyArgsSets := make([][]interface{}, 0)
+			for _, args := range argsSets {
+				var anyArgs []interface{}
+				for _, arg := range args {
+					if arg == nil {
+						anyArgs = append(anyArgs, nil)
+					} else {
+						anyArgs = append(anyArgs, *arg)
+					}
+				}
+				anyArgsSets = append(anyArgsSets, anyArgs)
+			}
+
 			for _, contract := range contracts {
-				_, err := app.Engine.Procedure(ctx, app.DB, &common.ExecutionData{
-					Dataset:   contract,
-					Procedure: r.ResolutionName,
-					Args:      []any{newData.Data},
-					Signer:    resolution.Proposer,
-					Caller:    string(resolution.Proposer),
-				})
-				if err != nil {
-					return err
+				for _, anyArgs := range anyArgsSets {
+					_, err := app.Engine.Procedure(ctx, app.DB, &common.ExecutionData{
+						Dataset:   contract,
+						Procedure: r.ResolutionName,
+						Args:      anyArgs,
+						Signer:    resolution.Proposer,
+						Caller:    string(resolution.Proposer),
+					})
+					if err != nil {
+						return err
+					}
 				}
 			}
 
@@ -107,19 +123,4 @@ func getDataSetsWithAction(ctx context.Context, app *common.App, action string) 
 		}
 	}
 	return contracts, nil
-}
-
-type IngestDataResolution struct {
-	// Data is the data to be ingested.
-	Data []interface{}
-}
-
-// MarshalBinary marshals the resolution into a binary format.
-func (r *IngestDataResolution) MarshalBinary() ([]byte, error) {
-	return serialize.Encode(r)
-}
-
-// UnmarshalBinary unmarshals the resolution from a binary format.
-func (r *IngestDataResolution) UnmarshalBinary(data []byte) error {
-	return serialize.DecodeInto(data, r)
 }

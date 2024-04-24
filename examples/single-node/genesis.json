@@ -23,7 +23,7 @@
       "join_expiry": 14400
     },
     "votes": {
-      "vote_expiry": 0
+      "vote_expiry": 14400
     },
     "without_nonces": false,
     "without_gas_costs": true
