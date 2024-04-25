@@ -1,12 +1,12 @@
 ## Run it
 
 ### Pre-requisites
-- streamr-cli and basic knowledge of [how to use it](https://docs.streamr.network/usage/cli-tool).
+- `streamr-cli` and basic knowledge of [how to use it](https://docs.streamr.network/usage/cli-tool).
   ```shell
    pnpm install -g @streamr/cli-tools@8.5.5
    ```
-- kwil-cli ([install instructions](https://docs.kwil.com/docs/kwil-cli/installation))
-- Some tokens in your polygon wallet to deploy the streams
+- `kwil-cli` and a basic knowledge of [how to use it](https://docs.kwil.com/docs/kwil-cli/installation)
+- Some tokens in your polygon wallet to deploy a stream
 
 ### Steps
 1. Create the demo stream
