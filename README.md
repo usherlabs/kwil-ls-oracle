@@ -47,7 +47,7 @@
 7. Publish a message to the stream
     ```bash
    streamr message publish /kwil-demo
-   <then type some messages in JSON format, such as {"hello": "world"}>
+   # then type in some messages in JSON format, such as {"hello": "world"}
     ```
    
 8. (After 2 minutes) Call an action to get data from kwil node
