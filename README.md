@@ -1,12 +1,12 @@
 ## Run it
 
 ### Pre-requisites
-- streamr-cli and basic knowledge of [how to use it](https://docs.streamr.network/usage/cli-tool).
+- `streamr-cli` and basic knowledge of [how to use it](https://docs.streamr.network/usage/cli-tool).
   ```shell
    pnpm install -g @streamr/cli-tools@8.5.5
    ```
-- kwil-cli ([install instructions] https://docs.kwil.com/docs/kwil-cli/installation)
-- Some tokens in your polygon wallet to deploy the streams
+- `kwil-cli` and a basic knowledge of [how to use it](https://docs.kwil.com/docs/kwil-cli/installation)
+- Some tokens in your polygon wallet to deploy a stream
 
 ### Steps
 1. Create the demo stream
@@ -47,7 +47,7 @@
 7. Publish a message to the stream
     ```bash
    streamr message publish /kwil-demo
-   <then type some messages in JSON format, such as {"hello": "world"}>
+   # then type in some messages in JSON format, such as {"hello": "world"}
     ```
    
 8. (After 2 minutes) Call an action to get data from kwil node
@@ -61,18 +61,18 @@ Verify the output of the last command. It should return the messages you publish
 
 ### [paginated_poll_listener](./internal/paginated_poll_listener)
 
-Abstraction over a paginated poll listener. It makes it easier to separate how we fetch data, or paginate to get new data, from how we process it.
-It says in which order we fetch, or how to store last keys, when we get resolution for data, etc.
+Abstraction over a paginated poll listener. It makes it easier to separate how we fetch data or paginate to get new data from how we process it.
+It says in which order we fetch, how to store the last keys, when we get data resolution, etc.
 
 ### [logstore_listener](internal/extensions/listeners/logstore_listener)
 
-Implements a way to periodically fetch data from the Log Store. Uses the paginated_poll_listener abstraction. It says how keying works and how to fetch data. Keys are pagination keys. For example, we could use as key: timestamps, block heights, etc.
+Implements a way to periodically fetch data from the Log Store. It uses the paginated_poll_listener abstraction. It explains how keying works and how to fetch data. Keys are pagination keys. For example, we could use timestamps, block heights, etc., as keys.
 
 See https://docs.kwil.com/docs/extensions/event-listeners for more information on kwil listeners.
 
 ### [ingest_resolution](internal/extensions/resolutions/ingest_resolution)
 
-Implements the consensus mechanisms. It is used by `pagination_poll_listener` to resolve data. For example, it says how to serialize data, and what to do when consensus is reached.
+Implements the consensus mechanisms. It is used by `pagination_poll_listener` to resolve data. For example, it says how to serialize data and what to do when consensus is reached.
 
 See https://docs.kwil.com/docs/extensions/resolutions for more information on kwil resolutions.
 
