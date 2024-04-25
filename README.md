@@ -5,7 +5,7 @@
   ```shell
    pnpm install -g @streamr/cli-tools@8.5.5
    ```
-- kwil-cli ([install instructions] https://docs.kwil.com/docs/kwil-cli/installation)
+- kwil-cli ([install instructions](https://docs.kwil.com/docs/kwil-cli/installation))
 - Some tokens in your polygon wallet to deploy the streams
 
 ### Steps
