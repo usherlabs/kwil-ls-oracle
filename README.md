@@ -61,18 +61,18 @@ Verify the output of the last command. It should return the messages you publish
 
 ### [paginated_poll_listener](./internal/paginated_poll_listener)
 
-Abstraction over a paginated poll listener. It makes it easier to separate how we fetch data, or paginate to get new data, from how we process it.
-It says in which order we fetch, or how to store last keys, when we get resolution for data, etc.
+Abstraction over a paginated poll listener. It makes it easier to separate how we fetch data or paginate to get new data from how we process it.
+It says in which order we fetch, how to store the last keys, when we get data resolution, etc.
 
 ### [logstore_listener](internal/extensions/listeners/logstore_listener)
 
-Implements a way to periodically fetch data from the Log Store. Uses the paginated_poll_listener abstraction. It says how keying works and how to fetch data. Keys are pagination keys. For example, we could use as key: timestamps, block heights, etc.
+Implements a way to periodically fetch data from the Log Store. It uses the paginated_poll_listener abstraction. It explains how keying works and how to fetch data. Keys are pagination keys. For example, we could use timestamps, block heights, etc., as keys.
 
 See https://docs.kwil.com/docs/extensions/event-listeners for more information on kwil listeners.
 
 ### [ingest_resolution](internal/extensions/resolutions/ingest_resolution)
 
-Implements the consensus mechanisms. It is used by `pagination_poll_listener` to resolve data. For example, it says how to serialize data, and what to do when consensus is reached.
+Implements the consensus mechanisms. It is used by `pagination_poll_listener` to resolve data. For example, it says how to serialize data and what to do when consensus is reached.
 
 See https://docs.kwil.com/docs/extensions/resolutions for more information on kwil resolutions.
 
