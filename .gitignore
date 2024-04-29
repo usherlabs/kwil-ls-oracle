@@ -8,4 +8,6 @@
 go.work*
 vendor
 
-docker-data
+
+examples/docker-data/*
+!examples/docker-data/.gitkeep
