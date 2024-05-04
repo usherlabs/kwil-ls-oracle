@@ -41,7 +41,7 @@
    
 6. Deploy the demo schema
    ```bash
-   kwil-cli database deploy --sync -p=./examples/demo-contract/demo.kf --name=demo --sync
+   kwil-cli database deploy -p=./examples/demo-contract/demo.kf --name=demo --sync
     ```
    
 7. Publish a message to the stream
