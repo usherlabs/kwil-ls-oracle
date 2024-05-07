@@ -14,18 +14,23 @@ admin_listen_addr = "unix:///tmp/kwil_admin.sock"
 
 # TCP or UNIX socket address for the KWILD App's HTTP server to listen on
 http_listen_addr = "0.0.0.0:8080" # for external access
-pg_db_host = "kwil-postgres"
+pg_db_host = "kwil-postgres-3"
 
+# Kwild Server hostname
+hostname = "kwil-node-3"
 
 [app.extensions]
 # custom listener config
 
 [app.extensions.logstore-oracle]
 stream_id = "0xd37dc4d7e2c1bdf3edd89db0e505394ea69af43d/kwil-demo"
-node_endpoint = "http://logstore-node:7773"
+# we let this be defined by the compose env variable KWILD_APP_EXTENSIONS_LOGSTORE_ORACLE_NODE_ENDPOINT
+node_endpoint = "http://logstore-node-3:8080"
 overhead_delay = "10s"
 cron_schedule = "* * * * *"
 private_key = "0000000000000000000000000000000000000000000000000000000000000022"
+# possible values: "<owner>/<db_name>,<owner>/*,*/<db_name>,*/*" -- comma separated
+lookup_schemas = "*/demo"
 # Unix timestamp in seconds
 # starting_timestamp=0
 
@@ -33,14 +38,21 @@ private_key = "0000000000000000000000000000000000000000000000000000000000000022"
 persistent_peers = "b939bed1bbc23a011376396021205f72e96387f8@kwil-node-1:26656,b492a82561a89075cb2af06c67d83566f8ff5669@kwil-node-2:26656,8b838de3efe717678f184b254ed482bbb497d73e@kwil-node-3:26656"
 # Address to listen for incoming connections
 listen_addr = "tcp://0.0.0.0:26656"
-allow_duplicate_ip=true
-addr_book_strict=false
 
+# Address to advertise to peers for them to dial
+# If empty, will use the same port as the listening address,
+# and will introspect on the listener or use UPnP
+# to figure out the address. ip and port are required
+# example: 159.89.10.97:26656
+
+external_address = "kwil-node-3:26656"
+
+allow_duplicate_ip = true
+addr_book_strict = false
 
 [chain.rpc]
 # TCP or UNIX socket address for the RPC server to listen on
 listen_addr = "tcp://0.0.0.0:26657"
-# get from env variable
-#external_address =
+
 
 

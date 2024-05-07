@@ -1,0 +1,33 @@
+{
+	"$schema": "https://schema.streamr.network/config-v2.schema.json",
+	"streamrClient": {
+		"auth": {
+			"privateKey": "0xbb00000000000000000000000000000000000000000000000000000000000001"
+		}
+	},
+	"mode": {
+		"type": "standalone",
+		"trackedStreams": [
+			{
+				"id": "0xd37dc4d7e2c1bdf3edd89db0e505394ea69af43d/kwil-demo",
+				"partitions": 1
+			}
+		]
+	},
+	"httpServer": {
+		"port": 8080
+	},
+	"plugins": {
+		"logStore": {
+			"db": {
+				"type": "sqlite",
+				"dataPath": ".logstore/data/logstore-data.db"
+			},
+			"programs": {
+				"chainRpcUrls": {
+					"137": "https://polygon.llamarpc.com"
+				}
+			}
+		}
+	}
+}
