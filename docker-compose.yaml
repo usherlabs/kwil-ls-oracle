@@ -39,7 +39,7 @@ services:
     volumes:
       - ./examples/single-node/config.toml:/root/.kwild/config.toml:ro
       - ./examples/single-node/genesis.json:/root/.kwild/genesis.json
-      - ./examples/single-node/node1.private_key:/root/.kwild/private_key
+      - ./examples/single-node/private_key:/root/.kwild/private_key
       - type: volume
         source: data-kwil
         target: /root/.kwild
@@ -64,7 +64,7 @@ services:
         - SINK_STELLAR_WALLET_PRIVATE_KEY=SCMDRX7A7OVRPAGXLUVRNIYTWBLCS54OV7UH2TF5URSG4B4JQMUADCYU
     volumes:
       - type: bind
-        source: ./examples/logstore-node-config.json
+        source: ./examples/logstore-config.json
         target: /home/node/.logstore/config/default.json
         read_only: true
       - type: bind

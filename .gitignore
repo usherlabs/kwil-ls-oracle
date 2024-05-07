@@ -8,6 +8,4 @@
 go.work*
 vendor
 
-
-examples/docker-data/*
-!examples/docker-data/.gitkeep
+examples/**/logstore-data*
