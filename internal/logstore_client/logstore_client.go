@@ -68,6 +68,11 @@ func (c *LogStoreClient) GetFirstMessageTimestamp(streamId string) (int64, error
 		return 0, fmt.Errorf("failed to fetch messages: %w", err)
 	}
 
+	// if there's no message, return 0
+	if len(streamMessageResponse) == 0 {
+		return 0, nil
+	}
+
 	return streamMessageResponse[0].Metadata.Id.Timestamp, nil
 }
 

@@ -45,6 +45,11 @@ func (p *PaginatedPoller[T]) Run(ctx context.Context, service *common.Service, e
 		return fmt.Errorf("failed to get starting key: %w", err)
 	}
 
+	currentKey, err := p.KeyingService.GetCurrentKey()
+	if err != nil {
+		return fmt.Errorf("failed to get current key: %w", err)
+	}
+
 	var startingKey int64
 	if startingKeyRef == nil {
 		// starting key should not change, that's why we store it in the kv store
@@ -52,6 +57,13 @@ func (p *PaginatedPoller[T]) Run(ctx context.Context, service *common.Service, e
 		if err != nil {
 			return fmt.Errorf("failed to get starting key: %w", err)
 		}
+
+		// if starting key is 0, we set it as the current key.
+		// starging key = 0 means there is no data in the system yet.
+		if startingKey == 0 {
+			startingKey = currentKey
+		}
+
 		err = setFirstStoredKey(ctx, eventstore, startingKey)
 		if err != nil {
 			return fmt.Errorf("failed to set first key: %w", err)
@@ -62,11 +74,6 @@ func (p *PaginatedPoller[T]) Run(ctx context.Context, service *common.Service, e
 
 	if startingKey > lastProcessedKey {
 		lastProcessedKey = startingKey
-	}
-
-	currentKey, err := p.KeyingService.GetCurrentKey()
-	if err != nil {
-		return fmt.Errorf("failed to get current key: %w", err)
 	}
 
 	// ending key is the key before the current key
