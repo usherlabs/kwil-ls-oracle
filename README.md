@@ -1,6 +1,7 @@
 ## Run it
 
 ### Pre-requisites
+
 - `streamr-cli` and basic knowledge of [how to use it](https://docs.streamr.network/usage/cli-tool).
   ```shell
    pnpm install -g @streamr/cli-tools@8.5.5
@@ -8,18 +9,19 @@
 - `kwil-cli` and a basic knowledge of [how to use it](https://docs.kwil.com/docs/kwil-cli/installation)
 - Some tokens in your polygon wallet to deploy a stream
 
-### Steps
+### Steps to test a single node
+
 1. Create the demo stream
     ```bash
    streamr stream create /kwil-demo
     ```
-   
+
 2. Make the stream public
     ```bash
    streamr stream grant-permission /kwil-demo public subscribe
     ```
-   
-3. Adjust the configuration for the log store to start tracking the stream [here](./examples/logstore-node-config.json)
+
+3. Adjust the configuration for the log store to start tracking the stream [here](./examples/single-node/logstore-node-config.json)
    ```
      "trackedStreams": [
          {
@@ -33,29 +35,54 @@
    ```toml
    stream_id = "<your_address>/kwil-demo"
    ```
-   
+
 5. Start the docker services
    ```bash
    docker compose -f ./docker-compose.yaml up -d
    ```
-   
+
 6. Deploy the demo schema
    ```bash
    kwil-cli database deploy -p=./examples/demo-contract/demo.kf --name=demo --sync
     ```
-   
+
 7. Publish a message to the stream
     ```bash
-   streamr message publish /kwil-demo
+   streamr stream publish /kwil-demo
    # then type in some messages in JSON format, such as {"hello": "world"}
     ```
-   
+
 8. (After 2 minutes) Call an action to get data from kwil node
     ```bash
     kwil-cli database call -a=get_data -n=demo
    ```
 
 Verify the output of the last command. It should return the messages you published in the stream.
+
+### Testing a network of nodes
+
+To test a network of Kwil + Log Store nodes, there are some differences in the steps related to nodes configuration and to docker services startup.
+
+3. For each `logstore-config.json` inside the `[examples/testnet](./examples/testnet) > nodeX` directory, adjust the configuration for the log store to start tracking the stream.
+   ```
+     "trackedStreams": [
+         {
+             "id": "<your_address>/kwil-demo",
+             "partitions": 1
+         }
+     ]
+   ```
+
+4. For each `config.toml` inside the `[examples/testnet](./examples/testnet) > nodeX` directory, adjust the configuration of the oracle extension.
+   ```toml
+    stream_id = "<your_address>/kwil-demo"
+    ```
+5. Start the docker services
+   ```bash
+   docker compose -f ./docker-compose-testnet.yaml up -d
+   ```
+
+The other steps are the same as the single node test.
 
 ## Directories Overview
 
