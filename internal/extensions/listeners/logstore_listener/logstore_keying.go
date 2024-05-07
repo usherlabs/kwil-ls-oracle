@@ -73,5 +73,11 @@ func (l *LogStoreKeying) GetKeyBefore(key int64) (int64, error) {
 	// convert from unix timestamp to time
 	keyTime := time.UnixMilli(key)
 
-	return l.cronExpr.Prev(keyTime).UnixMilli(), nil
+	// we get the prev from the next, because prev considers we're sitting on the key
+	// i.e., for a cron that runs every minute 00:00, 01:00, 02:00,
+	// if current is 01:30, we want key before to be 01:00
+	// so we get next: 02:00, and then prev: 01:00
+	// otherwise if we try to get prev directly, we would get 00:00
+	next := l.cronExpr.Next(keyTime)
+	return l.cronExpr.Prev(next).UnixMilli(), nil
 }
