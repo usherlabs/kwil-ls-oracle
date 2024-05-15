@@ -152,9 +152,9 @@ services:
         source: ./examples/testnet/node1/logstore-config.json
         target: /home/node/.logstore/config/default.json
         read_only: true
-      - type: bind
-        source: ./examples/testnet/node1/
-        target: /home/node/.logstore/data/
+      - type: volume
+        source: data-logstore-1
+        target: /home/node/.logstore/
 
   logstore-node-2:
     container_name: logstore-node-2
@@ -173,9 +173,9 @@ services:
         source: ./examples/testnet/node2/logstore-config.json
         target: /home/node/.logstore/config/default.json
         read_only: true
-      - type: bind
-        source: ./examples/testnet/node2/
-        target: /home/node/.logstore/data/
+      - type: volume
+        source: data-logstore-2
+        target: /home/node/.logstore/
 
   logstore-node-3:
     container_name: logstore-node-3
@@ -194,9 +194,9 @@ services:
         source: ./examples/testnet/node3/logstore-config.json
         target: /home/node/.logstore/config/default.json
         read_only: true
-      - type: bind
-        source: ./examples/testnet/node3/
-        target: /home/node/.logstore/data/
+      - type: volume
+        source: data-logstore-3
+        target: /home/node/.logstore/
 
 
 
@@ -211,3 +211,6 @@ volumes:
   data-kwil-postgres-1:
   data-kwil-postgres-2:
   data-kwil-postgres-3:
+  data-logstore-1:
+  data-logstore-2:
+  data-logstore-3:

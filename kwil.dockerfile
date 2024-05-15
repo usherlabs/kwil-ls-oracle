@@ -46,11 +46,11 @@ RUN ./kwil-admin setup init --chain-id logstore-test -o /root/.kwild
 EXPOSE 50051 50151 8080 26656 26657
 
 # if set to debug, entrypoint is dlv
-# if not, entrypoint is kwild --autogen
+# if not, entrypoint is kwild
 ENTRYPOINT if [ "$DEBUG_PORT" != "" ]; then \
     echo "Running in debug mode"; \
-    dlv --listen=:$DEBUG_PORT --headless=true --api-version=2 --accept-multiclient exec ./kwild -- --autogen; \
+    dlv --listen=:$DEBUG_PORT --headless=true --api-version=2 --accept-multiclient exec ./kwild; \
 else \
     echo "Running in normal mode"; \
-    ./kwild --autogen; \
+    ./kwild; \
 fi

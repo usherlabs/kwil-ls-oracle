@@ -68,8 +68,8 @@ services:
         target: /home/node/.logstore/config/default.json
         read_only: true
       - type: bind
-        source: ./examples/docker-data/
-        target: /home/node/.logstore/data/
+        source: logstore-data
+        target: /home/node/.logstore/
 
 networks:
   kwil-network:
@@ -79,3 +79,4 @@ volumes:
   data-kwil:
   data-kwil-postgres:
   data-push-tsn-data:
+  logstore-data:

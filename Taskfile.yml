@@ -15,16 +15,6 @@ tasks:
     cmds:
       - go build -gcflags "all=-N -l" -o ./.build/kwild ./cmd/kwild/main.go
 
-  kwild:
-    desc: Run kwild server
-    cmds:
-      - .build/kwild --autogen
-
-  postgres:
-    desc: Run a postgres container
-    cmds:
-      - docker start kwil-postgres || docker run -d -p 5432:5432 --name kwil-postgres -e "POSTGRES_HOST_AUTH_METHOD=trust" kwildb/postgres:latest
-
   tools:
     desc: Install tools
     cmds:
