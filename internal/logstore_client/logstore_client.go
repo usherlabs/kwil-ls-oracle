@@ -73,7 +73,7 @@ func (c *LogStoreClient) GetFirstMessageTimestamp(streamId string) (int64, error
 		return 0, nil
 	}
 
-	return streamMessageResponse[0].Metadata.Id.Timestamp, nil
+	return streamMessageResponse[0].Timestamp, nil
 }
 
 func (c *LogStoreClient) GetLatestMessageTimestamp(streamId string) (int64, error) {
@@ -91,7 +91,11 @@ func (c *LogStoreClient) GetLatestMessageTimestamp(streamId string) (int64, erro
 
 	streamMessageResponse, err := c.FetchMessages(req)
 
-	return streamMessageResponse[0].Metadata.Id.Timestamp, nil
+	if err != nil {
+		return 0, fmt.Errorf("failed to fetch messages: %w", err)
+	}
+
+	return streamMessageResponse[0].Timestamp, nil
 }
 
 func (c *LogStoreClient) GetStreamPartitionCount(streamId string) (int, error) {
@@ -118,25 +122,43 @@ func (c *LogStoreClient) QueryRange(streamId string, from, to int64, partition i
 	return c.FetchMessages(req)
 }
 
+// {
+//    "messages": [
+//        {
+//            "streamId": "0xd37dc4d7e2c1bdf3edd89db0e505394ea69af43d/kwil-demo",
+//            "streamPartition": 0,
+//            "timestamp": 1717251456911,
+//            "sequenceNumber": 0,
+//            "publisherId": "0xd37dc4d7e2c1bdf3edd89db0e505394ea69af43d",
+//            "msgChainId": "SSMpFE1J9BcHiq5shY3Q",
+//            "messageType": 27,
+//            "contentType": 0,
+//            "encryptionType": 0,
+//            "content": 1,
+//            "signatureType": 1,
+//            "signature": "6e5bc0cbb8f8a6e3af351758e179f5073b15d7591ce5923f552727f4d076e53b1db46fd7c508f89a9c07c3b17612cc961ea5a46ba502bed0d5221c3da59282611c"
+//        }
+//    ],
+//    "metadata": {
+//        "hasNext": false,
+//        "totalMessages": 1,
+//        "type": "metadata"
+//    }
+//}
+
 type JSONStreamMessage struct {
-	Metadata struct {
-		Id struct {
-			StreamId        string `json:"streamId"`
-			StreamPartition int    `json:"streamPartition"`
-			Timestamp       int64  `json:"timestamp"`
-			SequenceNumber  int    `json:"sequenceNumber"`
-			PublisherId     string `json:"publisherId"`
-			MsgChainId      string `json:"msgChainId"`
-		} `json:"id"`
-		PrevMsgRef     interface{} `json:"prevMsgRef"`
-		MessageType    int         `json:"messageType"`
-		ContentType    int         `json:"contentType"`
-		EncryptionType int         `json:"encryptionType"`
-		GroupKeyId     interface{} `json:"groupKeyId"`
-		NewGroupKey    interface{} `json:"newGroupKey"`
-		Signature      string      `json:"signature"`
-	} `json:"metadata"`
-	Content interface{} `json:"content"`
+	StreamId        string      `json:"streamId"`
+	StreamPartition int         `json:"streamPartition"`
+	Timestamp       int64       `json:"timestamp"`
+	SequenceNumber  int         `json:"sequenceNumber"`
+	PublisherId     string      `json:"publisherId"`
+	MsgChainId      string      `json:"msgChainId"`
+	MessageType     int         `json:"messageType"`
+	ContentType     int         `json:"contentType"`
+	EncryptionType  int         `json:"encryptionType"`
+	Content         interface{} `json:"content"`
+	SignatureType   int         `json:"signatureType"`
+	Signature       string      `json:"signature"`
 }
 
 // create decoder from response body

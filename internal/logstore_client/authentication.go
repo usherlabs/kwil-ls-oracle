@@ -14,10 +14,9 @@ func createAuthHeader(signer auth.EthPersonalSigner) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	signatureStr := hexutil.Encode(passwordSignature.Signature)
+	signatureStr := base64.StdEncoding.EncodeToString(passwordSignature.Signature)
 
 	token := userStr + ":" + signatureStr
-
 	base64Token := base64.StdEncoding.EncodeToString([]byte(token))
 
 	return "basic " + base64Token, nil

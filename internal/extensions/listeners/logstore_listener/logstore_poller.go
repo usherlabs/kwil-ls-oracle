@@ -47,7 +47,7 @@ func (l *LogStorePoller) GetData(from, to int64) (**ingest_resolution.LogStoreIn
 
 		ingestMessages = append(ingestMessages, ingest_resolution.LogStoreIngestMessage{
 			Content:   strContent,
-			Timestamp: uint(message.Metadata.Id.Timestamp),
+			Timestamp: uint(message.Timestamp),
 		})
 	}
 
