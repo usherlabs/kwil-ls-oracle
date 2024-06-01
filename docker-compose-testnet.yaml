@@ -152,7 +152,7 @@ services:
         source: ./examples/testnet/node1/logstore-config.json
         target: /home/node/.logstore/config/default.json
         read_only: true
-      - type: volume
+      - type: bind
         source: ./examples/testnet/node1/
         target: /home/node/.logstore/data/
 
@@ -173,7 +173,7 @@ services:
         source: ./examples/testnet/node2/logstore-config.json
         target: /home/node/.logstore/config/default.json
         read_only: true
-      - type: volume
+      - type: bind
         source: ./examples/testnet/node3/
         target: /home/node/.logstore/data/
 
@@ -194,7 +194,7 @@ services:
         source: ./examples/testnet/node3/logstore-config.json
         target: /home/node/.logstore/config/default.json
         read_only: true
-      - type: volume
+      - type: bind
         source: ./examples/testnet/node2/
         target: /home/node/.logstore/data/
 
