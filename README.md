@@ -6,7 +6,7 @@
 - `Docker Compose` [Install Instructions](https://docs.docker.com/compose)
 - `streamr-cli` and basic knowledge of [how to use it](https://docs.streamr.network/usage/cli-tool).
   ```shell
-   pnpm install -g @streamr/cli-tools@8.5.5
+   pnpm install -g @streamr/cli-tools@latest
    ```
 - `kwil-cli`, `kwil-admin` and a basic knowledge of [how to use it](https://docs.kwil.com/docs/kwil-cli/installation)
   ```shell

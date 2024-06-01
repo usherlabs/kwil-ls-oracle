@@ -51,7 +51,7 @@ services:
   logstore-node:
     container_name: logstore-node
     hostname: logstore-node
-    image: "ghcr.io/usherlabs/logstore-node:develop"
+    image: "ghcr.io/usherlabs/logstore-node:latest"
     command: [ "start-in-docker", "start" ]
     networks:
       - kwil-network
@@ -64,12 +64,12 @@ services:
         - SINK_STELLAR_WALLET_PRIVATE_KEY=SCMDRX7A7OVRPAGXLUVRNIYTWBLCS54OV7UH2TF5URSG4B4JQMUADCYU
     volumes:
       - type: bind
-        source: ./examples/logstore-config.json
+        source: ./examples/single-node/logstore-config.json
         target: /home/node/.logstore/config/default.json
         read_only: true
       - type: bind
-        source: logstore-data
-        target: /home/node/.logstore/
+        source: ./examples/single-node/
+        target: /home/node/.logstore/data/
 
 networks:
   kwil-network:
@@ -78,5 +78,3 @@ networks:
 volumes:
   data-kwil:
   data-kwil-postgres:
-  data-push-tsn-data:
-  logstore-data:
