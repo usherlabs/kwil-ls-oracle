@@ -85,7 +85,7 @@ func Start(ctx context.Context, service *common.Service, eventstore listeners.Ev
 		case <-time.After(5 * time.Second):
 			err = paginatedPoller.Run(ctx, service, eventstore)
 			if err != nil {
-				return fmt.Errorf("failed to run paginated poller: %w", err)
+				service.Logger.Warn(fmt.Sprintf("failed to run paginated poller: %v", err))
 			}
 		}
 	}
