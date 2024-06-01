@@ -122,30 +122,6 @@ func (c *LogStoreClient) QueryRange(streamId string, from, to int64, partition i
 	return c.FetchMessages(req)
 }
 
-// {
-//    "messages": [
-//        {
-//            "streamId": "0xd37dc4d7e2c1bdf3edd89db0e505394ea69af43d/kwil-demo",
-//            "streamPartition": 0,
-//            "timestamp": 1717251456911,
-//            "sequenceNumber": 0,
-//            "publisherId": "0xd37dc4d7e2c1bdf3edd89db0e505394ea69af43d",
-//            "msgChainId": "SSMpFE1J9BcHiq5shY3Q",
-//            "messageType": 27,
-//            "contentType": 0,
-//            "encryptionType": 0,
-//            "content": 1,
-//            "signatureType": 1,
-//            "signature": "6e5bc0cbb8f8a6e3af351758e179f5073b15d7591ce5923f552727f4d076e53b1db46fd7c508f89a9c07c3b17612cc961ea5a46ba502bed0d5221c3da59282611c"
-//        }
-//    ],
-//    "metadata": {
-//        "hasNext": false,
-//        "totalMessages": 1,
-//        "type": "metadata"
-//    }
-//}
-
 type JSONStreamMessage struct {
 	StreamId        string      `json:"streamId"`
 	StreamPartition int         `json:"streamPartition"`
