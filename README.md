@@ -6,7 +6,7 @@
 - `Docker Compose` [Install Instructions](https://docs.docker.com/compose)
 - `streamr-cli` and basic knowledge of [how to use it](https://docs.streamr.network/usage/cli-tool).
   ```shell
-   pnpm install -g @streamr/cli-tools@8.5.5
+   pnpm install -g @streamr/cli-tools@latest
    ```
 - `kwil-cli`, `kwil-admin` and a basic knowledge of [how to use it](https://docs.kwil.com/docs/kwil-cli/installation)
   ```shell
@@ -49,7 +49,7 @@
 
 6. Deploy the demo schema
    ```bash
-   kwil-cli database deploy -p=./examples/demo-contract/demo.kf --name=demo --sync
+   ./.build/kwil-cli database deploy -p=./examples/demo-contract/demo.kf --name=demo --sync
     ```
 
 7. Publish a message to the stream
@@ -60,7 +60,7 @@
 
 8. (After 2 minutes) Call an action to get data from kwil node
     ```bash
-    kwil-cli database call -a=get_data -n=demo
+    ./.build/kwil-cli database call -a=get_data -n=demo
    ```
 
 Verify the output of the last command. It should return the messages you published in the stream.

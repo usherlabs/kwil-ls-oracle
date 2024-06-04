@@ -73,7 +73,7 @@ func (c *LogStoreClient) GetFirstMessageTimestamp(streamId string) (int64, error
 		return 0, nil
 	}
 
-	return streamMessageResponse[0].Metadata.Id.Timestamp, nil
+	return streamMessageResponse[0].Timestamp, nil
 }
 
 func (c *LogStoreClient) GetLatestMessageTimestamp(streamId string) (int64, error) {
@@ -91,7 +91,11 @@ func (c *LogStoreClient) GetLatestMessageTimestamp(streamId string) (int64, erro
 
 	streamMessageResponse, err := c.FetchMessages(req)
 
-	return streamMessageResponse[0].Metadata.Id.Timestamp, nil
+	if err != nil {
+		return 0, fmt.Errorf("failed to fetch messages: %w", err)
+	}
+
+	return streamMessageResponse[0].Timestamp, nil
 }
 
 func (c *LogStoreClient) GetStreamPartitionCount(streamId string) (int, error) {
@@ -119,24 +123,18 @@ func (c *LogStoreClient) QueryRange(streamId string, from, to int64, partition i
 }
 
 type JSONStreamMessage struct {
-	Metadata struct {
-		Id struct {
-			StreamId        string `json:"streamId"`
-			StreamPartition int    `json:"streamPartition"`
-			Timestamp       int64  `json:"timestamp"`
-			SequenceNumber  int    `json:"sequenceNumber"`
-			PublisherId     string `json:"publisherId"`
-			MsgChainId      string `json:"msgChainId"`
-		} `json:"id"`
-		PrevMsgRef     interface{} `json:"prevMsgRef"`
-		MessageType    int         `json:"messageType"`
-		ContentType    int         `json:"contentType"`
-		EncryptionType int         `json:"encryptionType"`
-		GroupKeyId     interface{} `json:"groupKeyId"`
-		NewGroupKey    interface{} `json:"newGroupKey"`
-		Signature      string      `json:"signature"`
-	} `json:"metadata"`
-	Content interface{} `json:"content"`
+	StreamId        string      `json:"streamId"`
+	StreamPartition int         `json:"streamPartition"`
+	Timestamp       int64       `json:"timestamp"`
+	SequenceNumber  int         `json:"sequenceNumber"`
+	PublisherId     string      `json:"publisherId"`
+	MsgChainId      string      `json:"msgChainId"`
+	MessageType     int         `json:"messageType"`
+	ContentType     int         `json:"contentType"`
+	EncryptionType  int         `json:"encryptionType"`
+	Content         interface{} `json:"content"`
+	SignatureType   int         `json:"signatureType"`
+	Signature       string      `json:"signature"`
 }
 
 // create decoder from response body

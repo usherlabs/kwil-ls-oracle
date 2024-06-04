@@ -138,7 +138,7 @@ services:
   logstore-node-1:
     container_name: logstore-node-1
     hostname: logstore-node-1
-    image: ghcr.io/usherlabs/logstore-node:develop
+    image: ghcr.io/usherlabs/logstore-node:latest
     command: [ "start-in-docker", "start" ]
     networks:
       - kwil-network
@@ -152,14 +152,14 @@ services:
         source: ./examples/testnet/node1/logstore-config.json
         target: /home/node/.logstore/config/default.json
         read_only: true
-      - type: volume
-        source: data-logstore-1
-        target: /home/node/.logstore/
+      - type: bind
+        source: ./examples/testnet/node1/
+        target: /home/node/.logstore/data/
 
   logstore-node-2:
     container_name: logstore-node-2
     hostname: logstore-node-2
-    image: ghcr.io/usherlabs/logstore-node:develop
+    image: ghcr.io/usherlabs/logstore-node:latest
     command: [ "start-in-docker", "start" ]
     networks:
       - kwil-network
@@ -173,14 +173,14 @@ services:
         source: ./examples/testnet/node2/logstore-config.json
         target: /home/node/.logstore/config/default.json
         read_only: true
-      - type: volume
-        source: data-logstore-2
-        target: /home/node/.logstore/
+      - type: bind
+        source: ./examples/testnet/node3/
+        target: /home/node/.logstore/data/
 
   logstore-node-3:
     container_name: logstore-node-3
     hostname: logstore-node-3
-    image: ghcr.io/usherlabs/logstore-node:develop
+    image: ghcr.io/usherlabs/logstore-node:latest
     command: [ "start-in-docker", "start" ]
     networks:
       - kwil-network
@@ -194,9 +194,9 @@ services:
         source: ./examples/testnet/node3/logstore-config.json
         target: /home/node/.logstore/config/default.json
         read_only: true
-      - type: volume
-        source: data-logstore-3
-        target: /home/node/.logstore/
+      - type: bind
+        source: ./examples/testnet/node2/
+        target: /home/node/.logstore/data/
 
 
 
@@ -211,6 +211,3 @@ volumes:
   data-kwil-postgres-1:
   data-kwil-postgres-2:
   data-kwil-postgres-3:
-  data-logstore-1:
-  data-logstore-2:
-  data-logstore-3:
