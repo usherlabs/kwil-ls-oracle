@@ -142,11 +142,6 @@ services:
     command: [ "start-in-docker", "start" ]
     networks:
       - kwil-network
-    environment:
-      - PROVER_MODE=dev
-      - NOTARY_URL=10.200.10.1:7047
-      - EXPERIMENTAL_SOROBAN_SINK=true
-      - SINK_STELLAR_WALLET_PRIVATE_KEY=SCMDRX7A7OVRPAGXLUVRNIYTWBLCS54OV7UH2TF5URSG4B4JQMUADCYU
     volumes:
       - type: bind
         source: ./examples/testnet/node1/logstore-config.json
@@ -163,11 +158,6 @@ services:
     command: [ "start-in-docker", "start" ]
     networks:
       - kwil-network
-    environment:
-      - PROVER_MODE=dev
-      - NOTARY_URL=10.200.10.1:7047
-      - EXPERIMENTAL_SOROBAN_SINK=true
-      - SINK_STELLAR_WALLET_PRIVATE_KEY=SCMDRX7A7OVRPAGXLUVRNIYTWBLCS54OV7UH2TF5URSG4B4JQMUADCYU
     volumes:
       - type: bind
         source: ./examples/testnet/node2/logstore-config.json
@@ -184,11 +174,6 @@ services:
     command: [ "start-in-docker", "start" ]
     networks:
       - kwil-network
-    environment:
-      - PROVER_MODE=dev
-      - NOTARY_URL=10.200.10.1:7047
-      - EXPERIMENTAL_SOROBAN_SINK=true
-      - SINK_STELLAR_WALLET_PRIVATE_KEY=SCMDRX7A7OVRPAGXLUVRNIYTWBLCS54OV7UH2TF5URSG4B4JQMUADCYU
     volumes:
       - type: bind
         source: ./examples/testnet/node3/logstore-config.json
