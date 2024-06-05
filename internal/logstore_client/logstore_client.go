@@ -122,6 +122,52 @@ func (c *LogStoreClient) QueryRange(streamId string, from, to int64, partition i
 	return c.FetchMessages(req)
 }
 
+/*
+ * Path: /stores/:id/partitions/:partition/ready
+ * Query parameters:
+ * - timeout: in milliseconds (30000 by default). If the node is not ready in this time, it will return false.
+ *
+ * Response:
+ * {"ready":bool}
+ */
+
+type JSONPartitionReadyResponse struct {
+	Ready bool `json:"ready"`
+}
+
+func (c *LogStoreClient) IsPartitionReady(streamId string, partition int) (bool, error) {
+	req, err := http.NewRequest("GET", c.endpoint+"/stores/"+url.PathEscape(streamId)+"/partitions/"+strconv.Itoa(partition)+"/ready", nil)
+	if err != nil {
+		panic(err)
+	}
+
+	q := req.URL.Query()
+	q.Add("timeout", "30000")
+	req.URL.RawQuery = q.Encode()
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+
+	if err != nil {
+		return false, fmt.Errorf("failed to check if partition is ready: %w", err)
+	}
+
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return false, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	var response JSONPartitionReadyResponse
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return false, fmt.Errorf("failed to unmarshal response body: %w", err)
+	}
+
+	return response.Ready, nil
+}
+
 type JSONStreamMessage struct {
 	StreamId        string      `json:"streamId"`
 	StreamPartition int         `json:"streamPartition"`
