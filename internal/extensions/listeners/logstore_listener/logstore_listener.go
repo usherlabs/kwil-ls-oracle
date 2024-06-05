@@ -77,6 +77,38 @@ func Start(ctx context.Context, service *common.Service, eventstore listeners.Ev
 		IngestResolution: *ingest_resolution.LogStoreIngestResolution,
 	}
 
+	// When the log store node has just started, there's a chance that the node hasn't connected to
+	// any node making the stream available yet. To avoid this, we try to query for the ready state using the client.
+	// We try it 20 times, with a 30 seconds timeout each.
+	//
+	// After this timeout, we still make the oracle run as normal. The rationale is that there might be no active publisher yet.
+	// Then it's safe to say that there's no data in the stream yet. If a publisher starts later, we will be able to catch up.
+
+	trial := 0
+	ready := false
+	for trial < 20 {
+		service.Logger.Info(fmt.Sprintf("checking for stream %s readiness, trial %d/20", config.StreamId, trial+1))
+		ready, err = client.IsPartitionReady(config.StreamId, 0)
+		if err != nil {
+			return fmt.Errorf("failed to check stream ready: %w", err)
+		}
+
+		if ready {
+			service.Logger.Info(fmt.Sprintf("stream %s is ready", config.StreamId))
+			break
+		} else {
+			service.Logger.Warn(fmt.Sprintf("stream %s is not ready yet", config.StreamId))
+		}
+
+		trial++
+	}
+
+	if !ready {
+		service.Logger.Warn(fmt.Sprintf("no publisher detected for stream %s, but will still run the oracle", config.StreamId))
+	}
+
+	service.Logger.Info(fmt.Sprintf("starting logstore oracle for stream %s", config.StreamId))
+
 	// start the paginated poller
 	for {
 		select {
