@@ -138,7 +138,7 @@ services:
   logstore-node-1:
     container_name: logstore-node-1
     hostname: logstore-node-1
-    image: ghcr.io/usherlabs/logstore-node:latest
+    image: ghcr.io/usherlabs/logstore-node:dev
     command: [ "start-in-docker", "start" ]
     networks:
       - kwil-network
@@ -159,7 +159,7 @@ services:
   logstore-node-2:
     container_name: logstore-node-2
     hostname: logstore-node-2
-    image: ghcr.io/usherlabs/logstore-node:latest
+    image: ghcr.io/usherlabs/logstore-node:dev
     command: [ "start-in-docker", "start" ]
     networks:
       - kwil-network
@@ -180,7 +180,7 @@ services:
   logstore-node-3:
     container_name: logstore-node-3
     hostname: logstore-node-3
-    image: ghcr.io/usherlabs/logstore-node:latest
+    image: ghcr.io/usherlabs/logstore-node:dev
     command: [ "start-in-docker", "start" ]
     networks:
       - kwil-network

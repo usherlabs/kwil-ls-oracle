@@ -51,7 +51,7 @@ services:
   logstore-node:
     container_name: logstore-node
     hostname: logstore-node
-    image: "ghcr.io/usherlabs/logstore-node:latest"
+    image: "ghcr.io/usherlabs/logstore-node:dev"
     command: [ "start-in-docker", "start" ]
     networks:
       - kwil-network

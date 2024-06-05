@@ -4,6 +4,7 @@
 
 - `Taskfile` [Install Instructions](https://taskfile.dev/installation)
 - `Docker Compose` [Install Instructions](https://docs.docker.com/compose)
+- `node >= v20`
 - `streamr-cli` and basic knowledge of [how to use it](https://docs.streamr.network/usage/cli-tool).
   ```shell
    pnpm install -g @streamr/cli-tools@latest
@@ -17,12 +18,13 @@
 
 ### Steps to test a single node
 
-1. Create the demo stream
+1. Create the demo stream (case the network is unstable, you might prefer using the [web interface](https://streamr.network/hub/streams/new))
     ```bash
+   # If your wallet is not configured, remember to add `--private-key <PRIVATE_KEY>` flag
    streamr stream create /kwil-demo
     ```
 
-2. Make the stream public
+2. Make the stream public (or via web UI, too)
     ```bash
    streamr stream grant-permission /kwil-demo public subscribe
     ```
@@ -54,9 +56,16 @@
 
 7. Publish a message to the stream
     ```bash
+   # If your wallet is not configured, remember to add `--private-key <PRIVATE_KEY>` flag
    streamr stream publish /kwil-demo
    # then type in some messages in JSON format, such as {"hello": "world"}
     ```
+   
+   Note: New or rarely used streams might have increased startup time before the Log Store node considers it ready to receive messages. If you want to see if it receiving messages already, you can check the logs of the Log Store node. You should see something like this:
+   ```
+   stream <your_address>/kwil-demo is ready
+   starting logstore oracle for stream <your_address>/kwil-demo
+   ```
 
 8. (After 2 minutes) Call an action to get data from kwil node
     ```bash
