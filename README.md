@@ -61,10 +61,10 @@
    # then type in some messages in JSON format, such as {"hello": "world"}
     ```
    
-   Note: New or rarely used streams might have increased startup time before the Log Store node considers it ready to receive messages. If you want to see if it receiving messages already, you can check the logs of the Log Store node. You should see something like this:
+   Note: New or rarely used streams might have increased startup time before the Log Store node considers it ready to receive messages. If you want to see if it is receiving messages already, you can check the logs of the Log Store node. You should see something like this:
    ```
    stream <your_address>/kwil-demo is ready
-   starting logstore oracle for stream <your_address>/kwil-demo
+   starting log store oracle for stream <your_address>/kwil-demo
    ```
 
 8. (After 2 minutes) Call an action to get data from kwil node
