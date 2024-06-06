@@ -15,6 +15,8 @@ COPY . .
 
 RUN go mod verify
 
+RUN sh ./scripts/kwil_binaries.sh
+
 ARG DEBUG_PORT
 
 # if there's a debug port, we use -gcflags "all=-N -l"

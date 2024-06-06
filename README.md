@@ -46,12 +46,17 @@
    stream_id = "<your_address>/kwil-demo"
    ```
 
-5. Start the docker services
+5. Ensure Kwil Binaries are available on host
+   ```bash
+    task kwil-binaries
+    ```
+
+6. Start the docker services
    ```bash
    docker compose -f ./docker-compose.yaml up -d
    ```
 
-6. Please ensure to you have configured your Kwil CLI, and Private Key
+7. Please ensure to you have configured your Kwil CLI, and Private Key
    ```bash
    ./.build/kwil-cli configure
     Kwil RPC URL: (leave empty for default)
@@ -59,12 +64,12 @@
     Private Key: (ECDSA wallet private key without "0x" eg. bb00000000000000000000000000000000000000000000000000000000000001)
     ```
 
-7. Deploy the demo schema
+8. Deploy the demo schema
    ```bash
    ./.build/kwil-cli database deploy -p=./examples/demo-contract/demo.kf --name=demo --sync
     ```
 
-8. Publish a message to the stream
+9. Publish a message to the stream
     ```bash
    # If your wallet is not configured, remember to add `--private-key <PRIVATE_KEY>` flag
    streamr stream publish /kwil-demo
@@ -77,7 +82,7 @@
    starting log store oracle for stream <your_address>/kwil-demo
    ```
 
-9. (After 2 minutes) Call an action to get data from kwil node
+10.  (After 2 minutes) Call an action to get data from kwil node
     ```bash
     ./.build/kwil-cli database call -a=get_data -n=demo
    ```
