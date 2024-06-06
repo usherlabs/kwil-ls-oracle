@@ -9,3 +9,4 @@ go.work*
 vendor
 
 examples/**/logstore-data*
+examples/**/logstore-node*

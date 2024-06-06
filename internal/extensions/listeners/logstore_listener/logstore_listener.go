@@ -6,6 +6,10 @@ package logstore_listener
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/kwilteam/kwil-db/common"
 	"github.com/kwilteam/kwil-db/core/crypto"
 	"github.com/kwilteam/kwil-db/core/crypto/auth"
@@ -13,9 +17,6 @@ import (
 	"github.com/usherlabs/kwil-ls-oracle/internal/extensions/resolutions/ingest_resolution"
 	"github.com/usherlabs/kwil-ls-oracle/internal/logstore_client"
 	"github.com/usherlabs/kwil-ls-oracle/internal/paginated_poll_listener"
-	"strconv"
-	"strings"
-	"time"
 )
 
 const ListenerName = "logstore-oracle"
@@ -90,7 +91,9 @@ func Start(ctx context.Context, service *common.Service, eventstore listeners.Ev
 		service.Logger.Info(fmt.Sprintf("checking for stream %s readiness, trial %d/20", config.StreamId, trial+1))
 		ready, err = client.IsPartitionReady(config.StreamId, 0)
 		if err != nil {
-			return fmt.Errorf("failed to check stream ready: %w", err)
+			service.Logger.Warn(fmt.Sprintf("retrying... failed to connect to LS Node readiness check: %v", err))
+			time.Sleep(1 * time.Second)
+			continue
 		}
 
 		if ready {

@@ -29,7 +29,8 @@
    streamr stream grant-permission /kwil-demo public subscribe
     ```
 
-3. Adjust the configuration for the log store to start tracking the stream [here](./examples/single-node/logstore-node-config.json)
+3. Adjust the configuration for the Log Store to start tracking the stream.  
+   For a Single Node, an adopt the Log Store configuration [here](./examples/single-node/logstore-config.json)
    ```
      "trackedStreams": [
          {
@@ -39,7 +40,8 @@
      ]
    ```
 
-4. Adjust the configuration of the oracle extension [here](./examples/single-node/config.toml)
+4. Adjust the configuration of the oracle extension.  
+   For a Single Node, an adopt the Log Store configuration [here](./examples/single-node/logstore-config.json)
    ```toml
    stream_id = "<your_address>/kwil-demo"
    ```
@@ -49,12 +51,20 @@
    docker compose -f ./docker-compose.yaml up -d
    ```
 
-6. Deploy the demo schema
+6. Please ensure to you have configured your Kwil CLI, and Private Key
+   ```bash
+   ./.build/kwil-cli configure
+    Kwil RPC URL: (leave empty for default)
+    Kwil Chain ID: (leave empty to trust a server-provided value)
+    Private Key: (ECDSA wallet private key without "0x" eg. bb00000000000000000000000000000000000000000000000000000000000001)
+    ```
+
+7. Deploy the demo schema
    ```bash
    ./.build/kwil-cli database deploy -p=./examples/demo-contract/demo.kf --name=demo --sync
     ```
 
-7. Publish a message to the stream
+8. Publish a message to the stream
     ```bash
    # If your wallet is not configured, remember to add `--private-key <PRIVATE_KEY>` flag
    streamr stream publish /kwil-demo
@@ -67,7 +77,7 @@
    starting log store oracle for stream <your_address>/kwil-demo
    ```
 
-8. (After 2 minutes) Call an action to get data from kwil node
+9. (After 2 minutes) Call an action to get data from kwil node
     ```bash
     ./.build/kwil-cli database call -a=get_data -n=demo
    ```
