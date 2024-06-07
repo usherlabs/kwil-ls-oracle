@@ -3,6 +3,7 @@ module github.com/usherlabs/kwil-ls-oracle
 go 1.22.1
 
 require (
+	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/ethereum/go-ethereum v1.13.15
 	github.com/gitploy-io/cronexpr v0.2.2
 	github.com/kwilteam/kwil-db v0.7.3

@@ -6,6 +6,7 @@ package logstore_listener
 import (
 	"context"
 	"fmt"
+	"github.com/cenkalti/backoff"
 	"strconv"
 	"strings"
 	"time"
@@ -89,12 +90,19 @@ func Start(ctx context.Context, service *common.Service, eventstore listeners.Ev
 	ready := false
 	for trial < 20 {
 		service.Logger.Info(fmt.Sprintf("checking for stream %s readiness, trial %d/20", config.StreamId, trial+1))
-		ready, err = client.IsPartitionReady(config.StreamId, 0)
-		if err != nil {
-			service.Logger.Warn(fmt.Sprintf("retrying... failed to connect to LS Node readiness check: %v", err))
-			time.Sleep(1 * time.Second)
-			continue
-		}
+
+		expBackoff := backoff.NewExponentialBackOff()
+		expBackoff.MaxInterval = 10 * time.Second
+		// run indefinetely
+		expBackoff.MaxElapsedTime = 0
+
+		// inifity retrials, error is ignored here
+		_ = backoff.RetryNotify(func() error {
+			ready, err = client.IsPartitionReady(config.StreamId, 0)
+			return err
+		}, expBackoff, func(err error, d time.Duration) {
+			service.Logger.Warn(fmt.Sprintf("failed to connect to LS Node readiness check: %v, retrying in %v", err, d))
+		})
 
 		if ready {
 			service.Logger.Info(fmt.Sprintf("stream %s is ready", config.StreamId))
