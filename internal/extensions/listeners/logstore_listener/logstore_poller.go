@@ -14,14 +14,14 @@ type LogStorePoller struct {
 	streamId string
 }
 
-var _ paginated_poll_listener.PollerService[*ingest_resolution.LogStoreIngestDataResolution] = (*LogStorePoller)(nil)
+var _ paginated_poll_listener.PollerService[ingest_resolution.LogStoreIngestDataResolution] = (*LogStorePoller)(nil)
 
 func NewLogStorePoller(client logstore_client.LogStoreClient, streamId string) *LogStorePoller {
 	return &LogStorePoller{client: client, streamId: streamId}
 }
 
 // GetData gets the data from the service from the given key range. FROM (inclusive) and TO (exclusive)
-func (l *LogStorePoller) GetData(from, to int64) (**ingest_resolution.LogStoreIngestDataResolution, error) {
+func (l *LogStorePoller) GetData(from, to int64) (*ingest_resolution.LogStoreIngestDataResolution, error) {
 	messages, err := l.client.QueryAllPartitions(l.streamId, from, to-1)
 
 	if err != nil {
@@ -55,5 +55,14 @@ func (l *LogStorePoller) GetData(from, to int64) (**ingest_resolution.LogStoreIn
 		Messages: ingestMessages,
 	}
 
-	return &data, nil
+	return data, nil
+}
+
+var emptyResolution = &ingest_resolution.LogStoreIngestDataResolution{
+	Messages: make([]ingest_resolution.LogStoreIngestMessage, 0),
+}
+var encodedEmptyResolution, _ = json.Marshal(emptyResolution)
+
+func (l *LogStorePoller) EmptyResolutionSize() int {
+	return len(encodedEmptyResolution)
 }

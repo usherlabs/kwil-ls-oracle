@@ -28,8 +28,8 @@ services:
       context: .
       dockerfile: ./kwil.dockerfile
       # Uncomment the following lines to enable debugging with delve
-#      args:
-#        - DEBUG_PORT=2345
+      args:
+        - DEBUG_PORT=2345
     ports:
       - "8080:8080"
       - "2345:2345"
@@ -51,7 +51,7 @@ services:
   logstore-node:
     container_name: logstore-node
     hostname: logstore-node
-    image: "ghcr.io/usherlabs/logstore-node:latest"
+    image: "logstore-node:local"
     command: [ "start-in-docker", "start" ]
     networks:
       - kwil-network
