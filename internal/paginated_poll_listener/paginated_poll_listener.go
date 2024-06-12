@@ -159,13 +159,13 @@ func (p *PaginatedPoller[T]) retrieveAndProcessData(
 		return nil
 	}
 
-	emptyResolutionSize := p.PollerService.EmptyResolutionSize()
-
 	// btree version 4 maximum size for index
 	MaxResolutionSize := 2704
 	// this is just a safety measure, because the data wrapper also has some size
-	OverheadSize := emptyResolutionSize
-	AdoptedMaxSize := MaxResolutionSize - OverheadSize
+	emptyOverheadSize := p.PollerService.EmptyResolutionSize()
+	// 54 added by debugging the size of an event during this implementation
+	empiricalOverheadSize := 54
+	AdoptedMaxSize := MaxResolutionSize - emptyOverheadSize - empiricalOverheadSize
 
 	encodedResolutionResults, chunkedResolutions, err := (*ingestDataResolution).MarshalIntoChunks(AdoptedMaxSize)
 
