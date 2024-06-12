@@ -7,6 +7,7 @@ import (
 )
 
 type LogStoreIngestMessage struct {
+	Id        string
 	Content   string
 	Timestamp uint
 }
@@ -87,6 +88,7 @@ func (r *LogStoreIngestDataResolution) GetArgs() [][]*string {
 	var argsSet [][]*string
 	for _, message := range r.Messages {
 		var args []*string
+		args = append(args, &message.Id)
 		args = append(args, &message.Content)
 		tsString := strconv.Itoa(int(message.Timestamp))
 		args = append(args, &tsString)

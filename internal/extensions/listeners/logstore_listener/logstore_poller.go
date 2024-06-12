@@ -5,6 +5,8 @@ import (
 	"github.com/usherlabs/kwil-ls-oracle/internal/extensions/resolutions/ingest_resolution"
 	"github.com/usherlabs/kwil-ls-oracle/internal/logstore_client"
 	"github.com/usherlabs/kwil-ls-oracle/internal/paginated_poll_listener"
+	"strconv"
+	"strings"
 )
 
 // LogStorePoller is a poller service for the logstore listener.
@@ -45,7 +47,15 @@ func (l *LogStorePoller) GetData(from, to int64) (**ingest_resolution.LogStoreIn
 			strContent = string(content)
 		}
 
+		idComponents := []string{
+			strconv.Itoa(int(message.Timestamp)),
+			strconv.Itoa(message.SequenceNumber),
+			strconv.Itoa(message.StreamPartition),
+		}
+		id := strings.Join(idComponents, "_")
+
 		ingestMessages = append(ingestMessages, ingest_resolution.LogStoreIngestMessage{
+			Id:        id,
 			Content:   strContent,
 			Timestamp: uint(message.Timestamp),
 		})
