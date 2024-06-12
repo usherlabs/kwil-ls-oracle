@@ -49,7 +49,6 @@ func (r *IngestResolution[T]) GetResolutionConfig() resolutions.ResolutionConfig
 			newData := Tptr.NewData()
 
 			// Unmarshal the resolution payload
-			// rlp: interface given to Decode must be a pointer
 			err := newData.UnmarshalBinary(resolution.Body)
 			if err != nil {
 				return err
