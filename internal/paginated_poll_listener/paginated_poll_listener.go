@@ -113,6 +113,8 @@ func (p *PaginatedPoller[T]) Run(ctx context.Context, service *common.Service, e
 				return fmt.Errorf("failed to process data: %w", processErrors.Errors[0])
 			}
 			// if it's just partial, we will continue to process the next key
+			// but it's still good to log the errors
+			service.Logger.Warn("partially failed to process data, but continuing to next keys: %v", processErrors.Errors)
 		}
 
 		lastProcessedKey = nextKey
@@ -167,20 +169,20 @@ func (p *PaginatedPoller[T]) retrieveAndProcessData(
 	empiricalOverheadSize := 54
 	AdoptedMaxSize := MaxResolutionSize - emptyOverheadSize - empiricalOverheadSize
 
-	encodedResolutionResults, chunkedResolutions, err := (*ingestDataResolution).MarshalIntoChunks(AdoptedMaxSize)
+	encodedResolutionResults, chunkedResolutions, errs := (*ingestDataResolution).MarshalIntoChunks(AdoptedMaxSize)
 
-	if err != nil {
-		errors.Errors = append(errors.Errors, fmt.Errorf("failed to marshal resolution: %w", err))
-		return &errors
-	}
+	// we will append the errors to the errors list, even if there's none
+	// the effect of this is that even if there is a critical marshal error,
+	errors.Errors = append(errors.Errors, errs...)
 
+	// we set the partially processed flag to true, as we will continue to process the next key even if there are errors
+	// otherwise messages that couldn't be processed would stop the whole process
+	errors.PartiallyProcessed = true
 	for i := 0; i < len(encodedResolutionResults); i++ {
 		err = eventstore.Broadcast(ctx, p.IngestResolution.ResolutionName, encodedResolutionResults[i])
 
 		if err != nil {
-			// we already broadcasted some, we should append the errors
 			errors.Errors = append(errors.Errors, fmt.Errorf("failed to broadcast resolution: %w", err))
-			errors.PartiallyProcessed = true
 			resolution := chunkedResolutions[i].(T)
 			errors.UnprocessedData = append(errors.UnprocessedData, &resolution)
 		}

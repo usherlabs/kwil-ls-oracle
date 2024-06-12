@@ -1,6 +1,7 @@
 package ingest_resolution
 
 import (
+	"fmt"
 	"github.com/kwilteam/kwil-db/core/types/serialize"
 	"math/big"
 	"strconv"
@@ -36,16 +37,17 @@ func (r *LogStoreIngestDataResolution) UnmarshalBinary(rawData []byte) error {
 	return serialize.DecodeInto(rawData, &r)
 }
 
-func (r *LogStoreIngestDataResolution) MarshalIntoChunks(maxChunkSize int) ([][]byte, []IngestDataResolution, error) {
+func (r *LogStoreIngestDataResolution) MarshalIntoChunks(maxChunkSize int) ([][]byte, []IngestDataResolution, []error) {
 	binaryData, err := r.MarshalBinary()
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, []error{err}
 	}
 
 	binarySize := len(binaryData)
 
 	var chunks [][]byte
 	var rs []IngestDataResolution
+	var errs []error
 
 	if binarySize < maxChunkSize {
 		chunks = append(chunks, binaryData)
@@ -53,14 +55,20 @@ func (r *LogStoreIngestDataResolution) MarshalIntoChunks(maxChunkSize int) ([][]
 		return chunks, rs, nil
 	}
 
+	if len(r.Messages) == 1 {
+		msgId := r.Messages[0].Id
+		return nil, nil, []error{fmt.Errorf("message with id %s is too large to be chunked", msgId)}
+	}
+
 	// split the data into chunks
 	splitChunks := r.split(2)
 
 	for _, rawChunk := range splitChunks {
-		newChunks, newRs, err := rawChunk.MarshalIntoChunks(maxChunkSize)
-		if err != nil {
-			return nil, nil, err
-		}
+		newChunks, newRs, newErrs := rawChunk.MarshalIntoChunks(maxChunkSize)
+
+		// here we won't return in case of errors, because it might be partially successful.
+		// before it, we returned because they were about single message or fatal errors
+		errs = append(errs, newErrs...)
 		chunks = append(chunks, newChunks...)
 		rs = append(rs, newRs...)
 	}
