@@ -18,6 +18,8 @@ type PaginatedPoller[T ingest_resolution.IngestDataResolution] struct {
 type PollerService[T ingest_resolution.IngestDataResolution] interface {
 	// GetData gets the data from the service from the given key range. FROM (inclusive) and TO (exclusive)
 	GetData(from, to int64) (*T, error)
+	// EmptyResolutionSize returns the size of the empty resolution
+	EmptyResolutionSize() int
 }
 
 // KeyingService helps to get the starting key, current key, key after and key before.
@@ -104,9 +106,15 @@ func (p *PaginatedPoller[T]) Run(ctx context.Context, service *common.Service, e
 			break
 		}
 
-		err = p.retrieveAndProcessData(ctx, lastProcessedKey, nextKey, eventstore, service.Logger)
-		if err != nil {
-			return fmt.Errorf("failed to process events: %w", err)
+		processErrors := p.retrieveAndProcessData(ctx, lastProcessedKey, nextKey, eventstore, service.Logger)
+		if processErrors != nil {
+			// if it's not partial, we will return the errors, as this might need to be retried
+			if !processErrors.PartiallyProcessed {
+				return fmt.Errorf("failed to process data: %w", processErrors.Errors[0])
+			}
+			// if it's just partial, we will continue to process the next key
+			// but it's still good to log the errors
+			service.Logger.Warn("partially failed to process data, but continuing to next keys: %v", processErrors.Errors)
 		}
 
 		lastProcessedKey = nextKey
@@ -122,34 +130,71 @@ func (p *PaginatedPoller[T]) Run(ctx context.Context, service *common.Service, e
 	return nil
 }
 
+type ProcessErrors[T any] struct {
+	Errors             []error
+	PartiallyProcessed bool
+	UnprocessedData    []*T
+}
+
 // retrieveAndProcessData will process all data from the PollerService from the given key range.
-func (p *PaginatedPoller[T]) retrieveAndProcessData(ctx context.Context, from, to int64, eventstore listeners.EventStore, logger log.SugaredLogger) error {
-	ptr, err := p.PollerService.GetData(from, to)
+// it returns errors if there are any, and also the unprocessed data
+func (p *PaginatedPoller[T]) retrieveAndProcessData(
+	ctx context.Context,
+	from, to int64,
+	eventstore listeners.EventStore,
+	logger log.SugaredLogger,
+) *ProcessErrors[T] {
+	errors := ProcessErrors[T]{
+		PartiallyProcessed: false,
+		UnprocessedData:    nil,
+	}
+
+	ingestDataResolution, err := p.PollerService.GetData(from, to)
 	if err != nil {
-		return fmt.Errorf("failed to get data: %w", err)
+		errors.Errors = append(errors.Errors, fmt.Errorf("failed to get data: %w", err))
+		return &errors
 	}
 
 	// if data is nil, we will not process it
-	if ptr == nil {
+	if ingestDataResolution == nil {
 		logger.Debug(fmt.Sprintf("no data from %d to %d", from, to))
 		return nil
 	}
 
-	ingestDataResolution := *ptr
+	// btree version 4 maximum size for index
+	MaxResolutionSize := 2704
+	// this is just a safety measure, because the data wrapper also has some size
+	emptyOverheadSize := p.PollerService.EmptyResolutionSize()
+	// 54 added by debugging the size of an event during this implementation
+	empiricalOverheadSize := 54
+	AdoptedMaxSize := MaxResolutionSize - emptyOverheadSize - empiricalOverheadSize
 
-	encodedResolutionResult, err := ingestDataResolution.MarshalBinary()
+	encodedResolutionResults, chunkedResolutions, errs := (*ingestDataResolution).MarshalIntoChunks(AdoptedMaxSize)
 
-	if err != nil {
-		return fmt.Errorf("failed to marshal resolution: %w", err)
-	}
+	// we will append the errors to the errors list, even if there's none
+	// the effect of this is that even if there is a critical marshal error,
+	errors.Errors = append(errors.Errors, errs...)
 
-	// broadcast the resolution to the network
-	err = eventstore.Broadcast(ctx, p.IngestResolution.ResolutionName, encodedResolutionResult)
-	if err != nil {
-		return err
+	// we set the partially processed flag to true, as we will continue to process the next key even if there are errors
+	// otherwise messages that couldn't be processed would stop the whole process
+	errors.PartiallyProcessed = true
+	for i := 0; i < len(encodedResolutionResults); i++ {
+		err = eventstore.Broadcast(ctx, p.IngestResolution.ResolutionName, encodedResolutionResults[i])
+
+		if err != nil {
+			errors.Errors = append(errors.Errors, fmt.Errorf("failed to broadcast resolution: %w", err))
+			resolution := chunkedResolutions[i].(T)
+			errors.UnprocessedData = append(errors.UnprocessedData, &resolution)
+		}
 	}
 
 	logger.Info(fmt.Sprintf("broadcasted resolution %s from %d to %d", p.IngestResolution.ResolutionName, from, to))
 
-	return nil
+	// if got more than 1 error, we return the errors
+	if len(errors.Errors) > 0 {
+		logger.Warn("failed to process data: %v", errors.Errors)
+		return &errors
+	} else {
+		return nil
+	}
 }

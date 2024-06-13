@@ -4,9 +4,8 @@ import (
 	"context"
 	"github.com/kwilteam/kwil-db/common"
 	"github.com/kwilteam/kwil-db/core/types"
-	"math/big"
-
 	"github.com/kwilteam/kwil-db/extensions/resolutions"
+	"math/big"
 )
 
 // use golang's init function, which runs before main, to register the extension
